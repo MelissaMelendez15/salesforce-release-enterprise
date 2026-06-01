@@ -47,6 +47,57 @@ pipeline {
                 '''
             }
         }
+
+        stage('Deploy Develop') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                sh '''
+                    sf project deploy start \
+                      --source-dir force-app \
+                      --target-org "$SF_ORG_ALIAS" \
+                      --test-level RunLocalTests
+                '''
+            }
+        }
+
+        stage('Deploy UAT') {
+            when {
+                branch 'uat'
+            }
+            steps {
+                sh '''
+                    sf project deploy start \
+                      --source-dir force-app \
+                      --target-org "$SF_ORG_ALIAS" \
+                      --test-level RunLocalTests
+                '''
+            }
+        }
+
+        stage('Manual Approval') {
+            when {
+                branch 'main'
+            }
+            steps {
+                input message: '¿Aprobar despliegue a Producción?', ok: 'Deploy Production'
+            }
+        }
+
+        stage('Deploy Production') {
+            when {
+                branch 'main'
+            }
+            steps {
+                sh '''
+                    sf project deploy start \
+                      --source-dir force-app \
+                      --target-org "$SF_ORG_ALIAS" \
+                      --test-level RunLocalTests
+                '''
+            }
+        }
     }
 
     post {
