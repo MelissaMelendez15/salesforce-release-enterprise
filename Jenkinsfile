@@ -18,6 +18,16 @@ pipeline {
             }
         }
 
+        stage('Debug Branch') {
+           steps {
+              sh '''
+                 echo "BRANCH_NAME=$BRANCH_NAME"
+                 echo "GIT_BRANCH=$GIT_BRANCH"
+                 git branch -a
+             '''
+            }
+        }
+
         stage('Authenticate Salesforce') {
             steps {
                 withCredentials([
@@ -50,7 +60,9 @@ pipeline {
 
         stage('Deploy Develop') {
             when {
-                branch 'develop'
+                expression { 
+                    env.GIT_BRANCH == 'origin/develop' 
+                }
             }
             steps {
                 sh '''
@@ -64,7 +76,9 @@ pipeline {
 
         stage('Deploy UAT') {
             when {
-                branch 'uat'
+                expression { 
+                    env.GIT_BRANCH == 'origin/uat' 
+                }
             }
             steps {
                 sh '''
@@ -78,7 +92,9 @@ pipeline {
 
         stage('Manual Approval') {
             when {
-                branch 'main'
+                expression { 
+                    env.GIT_BRANCH == 'origin/main' 
+                }
             }
             steps {
                 input message: '¿Aprobar despliegue a Producción?', ok: 'Deploy Production'
@@ -87,7 +103,9 @@ pipeline {
 
         stage('Deploy Production') {
             when {
-                branch 'main'
+                expression { 
+                    env.GIT_BRANCH == 'origin/main' 
+                }
             }
             steps {
                 sh '''
