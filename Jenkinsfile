@@ -43,7 +43,7 @@ pipeline {
                     sf project deploy validate \
                       --source-dir force-app \
                       --target-org "$SF_ORG_ALIAS" \
-                      --test-level NoTestRun
+                      --test-level RunLocalTests
                 '''
             }
         }
