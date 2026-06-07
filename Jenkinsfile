@@ -4,6 +4,8 @@ pipeline {
     options {
         skipDefaultCheckout(false)
         timestamps()
+        disableConcurrentBuilds()
+        timeout(time: 30, unit: 'MINUTES')
     }
 
     environment {
@@ -15,6 +17,16 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
+            }
+        }
+
+        stage('Debug Branch') {
+           steps {
+              sh '''
+                 echo "BRANCH_NAME=$BRANCH_NAME"
+                 echo "GIT_BRANCH=$GIT_BRANCH"
+                 git branch -a
+             '''
             }
         }
 
@@ -50,7 +62,9 @@ pipeline {
 
         stage('Deploy Develop') {
             when {
-                branch 'develop'
+                expression { 
+                    env.BRANCH_NAME == 'develop' 
+                }
             }
             steps {
                 sh '''
@@ -64,7 +78,9 @@ pipeline {
 
         stage('Deploy UAT') {
             when {
-                branch 'uat'
+                expression { 
+                    env.BRANCH_NAME == 'uat' 
+                }
             }
             steps {
                 sh '''
@@ -78,7 +94,9 @@ pipeline {
 
         stage('Manual Approval') {
             when {
-                branch 'main'
+                expression { 
+                    env.BRANCH_NAME == 'main' 
+                }
             }
             steps {
                 input message: '¿Aprobar despliegue a Producción?', ok: 'Deploy Production'
@@ -87,7 +105,9 @@ pipeline {
 
         stage('Deploy Production') {
             when {
-                branch 'main'
+                expression { 
+                    env.BRANCH_NAME == 'main' 
+                }
             }
             steps {
                 sh '''
