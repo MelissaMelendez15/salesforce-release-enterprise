@@ -4,6 +4,8 @@ pipeline {
     options {
         skipDefaultCheckout(false)
         timestamps()
+        disableConcurrentBuilds()
+        timeout(time: 30, unit: 'MINUTES')
     }
 
     environment {
@@ -61,7 +63,7 @@ pipeline {
         stage('Deploy Develop') {
             when {
                 expression { 
-                    env.GIT_BRANCH == 'origin/develop' 
+                    env.BRANCH_NAME == 'develop' 
                 }
             }
             steps {
@@ -77,7 +79,7 @@ pipeline {
         stage('Deploy UAT') {
             when {
                 expression { 
-                    env.GIT_BRANCH == 'origin/uat' 
+                    env.BRANCH_NAME == 'uat' 
                 }
             }
             steps {
@@ -93,7 +95,7 @@ pipeline {
         stage('Manual Approval') {
             when {
                 expression { 
-                    env.GIT_BRANCH == 'origin/main' 
+                    env.BRANCH_NAME == 'main' 
                 }
             }
             steps {
@@ -104,7 +106,7 @@ pipeline {
         stage('Deploy Production') {
             when {
                 expression { 
-                    env.GIT_BRANCH == 'origin/main' 
+                    env.BRANCH_NAME == 'main' 
                 }
             }
             steps {
